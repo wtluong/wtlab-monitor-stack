@@ -1,7 +1,12 @@
+version: "3.9"
+
 networks:
-  homelab:
-    external: true
-    name: core-infra_homelab
+  monitor_homelab:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.21.0.0/16
 
 services:
   # Metrics Collection
@@ -10,61 +15,14 @@ services:
     container_name: prometheus
     restart: unless-stopped
     ports:
-      - "9090:9090"
+      - "9090:9090"  # accessible from LAN or Tailscale
     volumes:
       - prometheus_data:/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/targets:/etc/prometheus/targets:ro
     networks:
-      homelab:
-        ipv4_address: 172.20.0.20
-
-  # Alerting - uses default config
-  alertmanager:
-    image: prom/alertmanager:latest
-    container_name: alertmanager
-    restart: unless-stopped
-    ports:
-      - "9093:9093"
-    volumes:
-      - alertmanager_data:/alertmanager
-    networks:
-      - homelab
-
-  # Visualization - uses default config
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    volumes:
-      - grafana_data:/var/lib/grafana
-    environment:
-      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
-    networks:
-      - homelab
-
-  # Log Aggregation - uses default config
-  loki:
-    image: grafana/loki:latest
-    container_name: loki
-    restart: unless-stopped
-    ports:
-      - "3100:3100"
-    volumes:
-      - loki_data:/loki
-    networks:
-      - homelab
-
-  # Log Shipping - uses default config (logs from /var/log only)
-  promtail:
-    image: grafana/promtail:latest
-    container_name: promtail
-    restart: unless-stopped
-    volumes:
-      - /var/log:/var/log:ro
-    networks:
-      - homelab
+      monitor_homelab:
+        ipv4_address: 172.21.0.10
 
   # System Metrics
   node-exporter:
@@ -83,7 +41,8 @@ services:
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($|/)'
     networks:
-      - homelab
+      monitor_homelab:
+        ipv4_address: 172.21.0.11
 
   # Container Metrics
   cadvisor:
@@ -91,7 +50,8 @@ services:
     container_name: cadvisor
     restart: unless-stopped
     ports:
-      - "8083:8080"
+      - "8083:8083"
+    command: --port=8083
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
@@ -99,10 +59,62 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
     privileged: true
-    devices:
-      - /dev/kmsg
     networks:
-      - homelab
+      monitor_homelab:
+        ipv4_address: 172.21.0.12
+
+  # Alerting
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    volumes:
+      - alertmanager_data:/alertmanager
+    networks:
+      monitor_homelab:
+        ipv4_address: 172.21.0.13
+
+  # Visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    networks:
+      monitor_homelab:
+        ipv4_address: 172.21.0.14
+
+  # Log Aggregation
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki_data:/loki
+    networks:
+      monitor_homelab:
+        ipv4_address: 172.21.0.15
+
+  # Log Shipping
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    restart: unless-stopped
+    volumes:
+      - /var/log:/var/log:ro
+    networks:
+      monitor_homelab:
+        ipv4_address: 172.21.0.16
 
 volumes:
   prometheus_data:

@@ -1,0 +1,15 @@
+- targets:
+    - 'node-exporter:9100'
+  labels:
+    service: 'node-exporter'
+    component: 'system-metrics'
+    environment: 'homelab'
+    team: 'sre'
+
+- targets:
+    - 'cadvisor:8083'
+  labels:
+    service: 'cadvisor'
+    component: 'container-metrics'
+    environment: 'homelab'
+    team: 'sre'

@@ -1,0 +1,10 @@
+# This file will be empty initially
+# Add your application metrics endpoints here later
+# Example:
+# - targets:
+#     - 'my-app:8080'
+#   labels:
+#     service: 'my-app'
+#     component: 'web-api'
+#     environment: 'homelab'
+#     team: 'backend'

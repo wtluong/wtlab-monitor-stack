@@ -6,30 +6,32 @@ global:
     environment: 'prod'
 
 rule_files:
-  - "rules/*.yml"
+  - "rules/*.yml"   # Picks up all alerting/recording rules
 
 alerting:
   alertmanagers:
     - static_configs:
         - targets:
-          - 'alertmanager:9093'
+            - 'alertmanager:9093'
 
 scrape_configs:
-  # Self-monitoring
+
+  # Prometheus self-monitoring
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
     scrape_interval: 5s
 
-  # Enterprise pattern: File-based service discovery
-  - job_name: 'infrastructure'
+  # Host metrics (file-based service discovery)
+  - job_name: 'hosts'
     file_sd_configs:
       - files:
-          - '/etc/prometheus/targets/infrastructure/*.yml'
+          - '/etc/prometheus/targets/hosts/*.yml'
         refresh_interval: 30s
     scrape_interval: 15s
     metrics_path: /metrics
 
+  # Applications (optional, add later)
   - job_name: 'applications'
     file_sd_configs:
       - files:
@@ -37,3 +39,4 @@ scrape_configs:
         refresh_interval: 30s
     scrape_interval: 15s
     metrics_path: /metrics
+

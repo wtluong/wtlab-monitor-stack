@@ -1,14 +1,18 @@
+# Node Exporter for monitor VM
 - targets:
-    - 'node-exporter:9100'
+    - '127.0.0.1:9100'
   labels:
+    host: 'monitor-vm'
     service: 'node-exporter'
     component: 'system-metrics'
     environment: 'homelab'
     team: 'sre'
 
+# cAdvisor for monitor VM
 - targets:
-    - 'cadvisor:8083'
+    - '127.0.0.1:8083'
   labels:
+    host: 'monitor-vm'
     service: 'cadvisor'
     component: 'container-metrics'
     environment: 'homelab'

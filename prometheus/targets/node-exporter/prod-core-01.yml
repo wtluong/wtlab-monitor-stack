@@ -1,0 +1,6 @@
+- targets:
+    - 'prod-core-01:9100'
+  labels:
+    host: 'core-vm'
+    team: 'sre'
+    environment: 'homelab'

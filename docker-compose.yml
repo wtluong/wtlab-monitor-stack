@@ -16,8 +16,10 @@ services:
       - "9090:9090"  # accessible from LAN or Tailscale
     volumes:
       - prometheus_data:/prometheus
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./prometheus/targets:/etc/prometheus/targets:ro
+      - ./prometheus:/etc/prometheus:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
     networks:
       monitor_homelab:
         ipv4_address: 172.21.0.10
@@ -86,6 +88,8 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_AUTH_ANONYMOUS_ENABLED=false
     networks:
       monitor_homelab:
         ipv4_address: 172.21.0.14

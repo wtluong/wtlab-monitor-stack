@@ -1,0 +1,7 @@
+- targets:
+    - 'cadvisor:8083'
+  labels:
+    host: 'monitor-vm'
+    component: 'container-metrics'
+    environment: 'homelab'
+    team: 'sre'

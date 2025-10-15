@@ -1,0 +1,4 @@
+PiHole - enable prometheus exporter
+Uptime Kuma - monitor monitoring / uptime checks (?)
+Grafana - monitor Grafana performance
+Jellyfin - monitor playback stats / user sessions / serverload

@@ -1,9 +1,6 @@
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
-  external_labels:
-    cluster: 'homelab'
-    environment: 'prod'
 
 rule_files:
   - "rules/*.yml"
@@ -11,29 +8,35 @@ rule_files:
 alerting:
   alertmanagers:
     - static_configs:
-        - targets:
-          - 'alertmanager:9093'
+        - targets: ['alertmanager:9093']
 
 scrape_configs:
-  # Self-monitoring
+  # Prometheus self-monitoring
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
     scrape_interval: 5s
 
-  # Enterprise pattern: File-based service discovery
-  - job_name: 'infrastructure'
+  # Node Exporter (system metrics)
+  - job_name: 'node-exporter'
     file_sd_configs:
       - files:
-          - '/etc/prometheus/targets/infrastructure/*.yml'
+          - '/etc/prometheus/targets/node-exporter/*.yml'
         refresh_interval: 30s
-    scrape_interval: 15s
     metrics_path: /metrics
 
+  # cAdvisor (container metrics)
+  - job_name: 'cadvisor'
+    file_sd_configs:
+      - files:
+          - '/etc/prometheus/targets/cadvisor/*.yml'
+        refresh_interval: 30s
+    metrics_path: /metrics
+
+  # Applications (optional)
   - job_name: 'applications'
     file_sd_configs:
       - files:
           - '/etc/prometheus/targets/applications/*.yml'
         refresh_interval: 30s
-    scrape_interval: 15s
     metrics_path: /metrics

@@ -1,6 +1,6 @@
 - targets:
-    - 'prod-core-01:9100'
+    - 'localhost:9100'
   labels:
-    host: 'core-vm'
-    team: 'sre'
+    instance: "prod-core-01"
     environment: 'homelab'
+    team: 'sre'

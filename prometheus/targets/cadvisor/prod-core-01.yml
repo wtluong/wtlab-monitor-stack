@@ -1,7 +1,6 @@
 - targets:
-    - 'prod-core-01:8083'
+    - 'localhost:8083'
   labels:
-    host: 'core-vm'
-    component: 'container-metrics'
+    instance: "prod-core-01"
     environment: 'homelab'
     team: 'sre'

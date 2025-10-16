@@ -1,6 +1,0 @@
-- targets:
-    - 'node-exporter:9100'
-  labels:
-    host: 'monitor-vm'
-    team: 'sre'
-    environment: 'homelab'
